@@ -1,0 +1,1161 @@
+<template name="main">
+    {{#if screensaverActive}}
+        {{> screensaver }}
+    {{/if}}
+    <div class="flex-container-vert main-layout">
+        <div class="ppdx-nav">
+            {{> nav}}
+        </div>
+        <div class="ppdx-content flex-container-vert">
+            {{> yield}}
+        </div>
+    </div>
+</template>
+
+<template name="edAdmin">
+    <div class="ed-admin-container">
+        {{#if currentUser}}
+            <a href="/admin" class="btn btn-md btn-default btn-admin-dashboard">
+                <i class="fa fa-dashboard" aria-hidden="true"></i> Admin Dashboard</a>
+        {{/if}}
+        {{> yield}}
+    </div>
+</template>
+
+<template name="nav">
+    <nav class="navbar-ppdx">
+        <div class="container-fluid navbar-container-ppdx">
+            {{#unless isHomePage}}
+                <a href="#" class="back-btn ppdx-navbar-btn"></a>
+                <a href="{{pathFor route='home'}}" class="home-btn ppdx-navbar-btn"></a>
+
+                <div id="preload-button-back"></div>
+                <div id="preload-button-home"></div>
+            {{/unless}}
+        </div>
+        <picture>
+            <source srcset="/images/Back-HeaderBar.half.jpg" sizes="100%" media="(max-width: 960px)">
+            <source srcset="/images/Back-HeaderBar.jpg" sizes="100%">
+            <img src="/images/Back-HeaderBar.jpg" class="ppdx-header-img">
+        </picture>
+    </nav>
+    <div class="black-gradient"></div>
+
+</template>
+
+
+<template name="screensaver">
+    <div id="screensaver">
+        <video width="1920" height="205" class="screensaver-video" loop>
+            <source src="/videos/papdexHeaderAnimation_004_4M.webm" type="video/webm">
+        </video>
+        <div class="screensaver-video-gradient"></div>
+    </div>
+</template>
+
+<template name="home">
+    <h2 class="home centered">The families of Harrison County have a long tradition of service.</h2>
+
+    <h3 class="home centered">This memorial is dedicated to all service members with a connection to Harrison
+        County.</h3>
+
+    <div class="flex-container-centered home-instructions">
+        <h4 class="home">Browse through this memorial to learn <br>
+            about some of our hometown heroes.</h4>
+        <div class="vertical-double-line-home"></div>
+        <h4 class="home">Help us honor everyone by adding to <br>
+            this memorial.</h4>
+    </div>
+
+    <div class="flex-container-centered-wrap ppdx-landing-btn-row">
+        <a href="{{pathFor route='searchByName'}}"
+           class="search-btn ppdx-landing-btn" role="button"></a>
+        <a href="{{pathFor route='browseByConflict'}}"
+           class="browse-btn ppdx-landing-btn" role="button"></a>
+        <a href="{{pathFor route='addNewProfile'}}"
+           class="add-btn ppdx-landing-btn" role="button"></a>
+    </div>
+
+    <div class="photo-carousel-row">
+        <div class="photo-carousel-container">
+            {{> photoCarousel}}
+        </div>
+        <a href="{{pathFor route='photoGallery'}}" class="photoGallery-btn"></a>
+    </div>
+
+    <div id="preload-button-browse-by-service"></div>
+    <div id="preload-button-add-new-profile"></div>
+    <div id="preload-button-search-by-name"></div>
+    <div id="preload-button-photo-gallery"></div>
+</template>
+
+
+<template name="photoCarousel">
+    <div class="front-carousel-image-container">
+        {{#each carouselImage}}
+            <div class="carousel-image"><a href="/profile/{{profileID}}"><img
+                    src="{{this.url store='thumbs'}}" alt="thumb"
+                    class="front-carousel-thumb"></a></div>
+        {{/each}}
+    </div>
+</template>
+
+<template name="searchByName">
+    <h1 class="centered">SEARCH BY NAME</h1>
+
+    <div class="flex-container-responsive-smalldesktop search-by-name">
+        <div class="flex-perc-40 z-index-2">
+            {{> searchNameForm }}
+        </div>
+        <div class="flex-perc-60 no-bottom-top-margin">
+            <div class="search-some-results">
+                <div class="search-results">
+                    {{{ numMatches }}} FOUND
+                </div>
+                {{> searchResultsTable}}
+            </div>
+            <div class="search-no-results">
+                <div class="search-results">
+                    NO MATCHES FOUND
+                </div>
+            </div>
+        </div>
+    </div>
+</template>
+
+<template name="searchNameForm">
+    <form role="form" class="search-name upper-margin" autocomplete="off">
+        <div class="form-group float-label-container">
+            <label for="sFirstName">First Name</label>
+            <input type="text" class="form-control search-name-keyboard" name="sFirstName">
+        </div>
+        <div class="form-group float-label-container">
+            <label for="sLastName">Last Name</label>
+            <input type="text" class="form-control search-name-keyboard" name="sLastName">
+        </div>
+        <div class="btn-name-search-container wide">
+            <button type="submit" class="btn-name-search"></button>
+        </div>
+        <div id="preload-button-results-search"></div>
+    </form>
+</template>
+
+<template name="addNewProfile">
+    <div class="flex-container-vert add-new-profile-vert-container">
+        <div class="add-new-profile-header">
+            {{#if profileCreated}}
+            {{else}}
+                {{#if nameDefined}}
+                    <div class="add-new-profile-name-defined">
+                        <div class="flex-container">
+                            <div class="double-line double-line-left"></div>
+                            <h1>NEW PROFILE FOR</h1>
+
+                            <div class="double-line double-line-right"></div>
+                        </div>
+                        <div class="flex-container">
+                            <div class="double-line-left"></div>
+                            <h2 class="new-profile-name">{{fullName}}</h2>
+
+                            <div class="double-line-right"></div>
+                        </div>
+
+                        <div class="btn-cancel-add-new-profile img-button" data-value="{{value}}">
+                            <img src="/images/buttons/addProfile/Button-StartOver.png">
+                            <img src="/images/buttons/addProfile/Button-StartOver-ON.png">
+                        </div>
+                    </div>
+                {{else}}
+                    <h1 class="centered">ADD A NEW PROFILE</h1>
+                {{/if}}
+            {{/if}}
+        </div>
+
+        <div class="add-new-profile-row">
+            <div class="add-new-profile-strip">
+                {{> addNewProfileName}}
+
+                {{> addNewProfileConflicts }}
+
+                {{> addNewProfileServiceType }}
+
+                {{> addNewProfileAddlInfo }}
+
+                {{> addNewProfileStoriesPhotos }}
+
+                {{> addNewProfileContact }}
+
+                {{> addNewProfileConfirmation }}
+
+                {{> addNewProfileDone fullName=fullName}}
+            </div>
+        </div>
+    </div>
+    <div class="add-new-profile-nav">
+        <div class="flex-container">
+            <div class="double-line double-line-left"></div>
+            <div class="progress">
+                <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="{{progPerc}}"
+                     aria-valuemin="0" aria-valuemax="100" style="width:{{progPerc}}%">
+                    {{ currentStep }} <span style="margin-right: 0.04em">/</span> {{ numSteps }}
+                </div>
+            </div>
+            <div class="double-line double-line-right"></div>
+        </div>
+        <div class="back-btn img-button ppdx-add-profile-navbtn" data-value="{{value}}">
+            <img src="/images/buttons/addProfile/Button-AddProfile-Back.png">
+            <img src="/images/buttons/addProfile/Button-AddProfile-Back-ON.png">
+        </div>
+        <div class="next-btn img-button ppdx-add-profile-navbtn" data-value="{{value}}">
+            <img src="/images/buttons/addProfile/Button-AddProfile-Next.png">
+            <img src="/images/buttons/addProfile/Button-AddProfile-Next-ON.png">
+        </div>
+        <div class="create-profile-btn img-button ppdx-add-profile-navbtn" data-value="{{value}}">
+            <img src="/images/buttons/addProfile/Button-AddProfile.png">
+            <img src="/images/buttons/addProfile/Button-AddProfile-ON.png">
+        </div>
+    </div>
+</template>
+
+<template name="addNewProfileName">
+    <div class="add-new-profile-name add-new-profile-section">
+        <div class="flex-container-responsive-smalldesktop">
+            <div class="flex-perc-40 z-index-2">
+                {{> addNameForm }}
+            </div>
+            <div class="flex-perc-60 no-bottom-top-margin">
+                <div class="add-new-profile-name-disambiguation">
+                    <!--<div class="alert alert-warning add-new-name-conflicts">-->
+                    <div class="add-new-name-conflicts">
+                        <strong>{{ numMatches }} been found with the same (or similar) name.</strong> <br>
+                        <div class="search-results-instructions">Please review them to make sure that the person you are
+                            adding is not already in our
+                            database. If you are confident that a new entry is needed, please {{tapclick}}
+                            the &ldquo;Next&rdquo; button. Otherwise, you can {{tapclick}} one of the entries
+                            here to see their profile page.
+                        </div>
+                    </div>
+                    {{> searchResultsTable}}
+                </div>
+            </div>
+        </div>
+    </div>
+</template>
+
+<template name="addNameForm">
+    <form role="form" class="add-name upper-margin" autocomplete="off">
+        <div class="form-group float-label-container">
+            <label for="firstName">First Name</label>
+            <input type="text" class="form-control add-name-keyboard" name="firstName">
+        </div>
+        <div class="form-group float-label-container">
+            <label for="lastName">Last Name</label>
+            <input type="text" class="form-control add-name-keyboard" name="lastName">
+        </div>
+        <div class="form-group float-label-container">
+            <label for="communitySel">Hometown, State</label>
+            <input type="text" class="form-control add-name-keyboard" name="community">
+        </div>
+    </form>
+</template>
+
+<template name="searchResultsTable">
+    <div class="search-results-table-container">
+        <table class="search-results-table">
+            <thead>
+            <tr>
+                <th></th>
+                <th><img src="/images/title-text/TextTitle-Results-Name.png"></th>
+                <th><img src="/images/title-text/TextTitle-Results-Service.png"></th>
+            </tr>
+            </thead>
+            <tbody>
+            {{#each searchResult}}
+                {{> searchResultRow}}
+            {{/each}}
+            </tbody>
+        </table>
+    </div>
+</template>
+
+<template name="searchResultRow">
+    <tr>
+        <td>
+            {{#if profilePhotoID}}
+                {{#with image}}
+                    <a href="/profile/{{profileID}}"><img src="{{this.url store='thumbs'}}" alt="thumb"
+                                                          class="search-results-thumb"></a>
+                {{/with}}
+            {{else}}
+                <a href="/profile/{{_id}}"><img src="/images/avatar.placeholder.100.png" alt="thumb"
+                                                class="search-results-thumb"></a>
+            {{/if}}
+        </td>
+        <td><a href="/profile/{{_id}}">{{firstName}} {{lastName}}</a></td>
+        <td>{{displayConflicts}}</td>
+    </tr>
+</template>
+
+<template name="addNewProfileConflicts">
+    <div class="add-new-profile-conflict add-new-profile-section">
+        <p class="add-new-profile-instructions">CHOOSE ALL THAT APPLY</p>
+
+        <div class="conflicts-grid mult-select-grid">
+            {{#each conflict}}
+                {{> conflictsCheckbox}}
+            {{/each}}
+        </div>
+
+    </div>
+</template>
+
+<template name="conflictsCheckbox">
+    <label class="img-checkbox img-checkbox-grid btn-conflicts-checkbox" data-value="{{value}}">
+        <input type="checkbox">
+        <img class="on-state" src="/images/buttons/addService/Button-Service-{{key}}-ON.png">
+        <img src="/images/buttons/addService/Button-Service-{{key}}.png">
+    </label>
+</template>
+
+<template name="conflictsCheckboxModal">
+    <label class="img-checkbox img-checkbox-grid btn-conflicts-checkbox-modal" data-value="{{value}}">
+        <input type="checkbox">
+        <img class="on-state" src="/images/buttons/addService/Button-Service-{{key}}-ON.png">
+        <img src="/images/buttons/addService/Button-Service-{{key}}.png">
+    </label>
+</template>
+
+<template name="addNewProfileServiceType">
+    <div class="add-new-profile-service-type add-new-profile-section">
+        <p class="add-new-profile-instructions">CHOOSE ALL THAT APPLY</p>
+
+        <div class="service-type-grid mult-select-grid">
+            {{#each serviceType}}
+                {{> serviceTypeCheckbox}}
+            {{/each}}
+        </div>
+    </div>
+</template>
+
+<template name="serviceTypeCheckbox">
+    <label class="img-checkbox img-checkbox-grid btn-service-type-checkbox" data-value="{{value}}">
+        <input type="checkbox">
+        <img class="on-state" src="/images/buttons/branches/Button-AddBranch-{{key}}-ON.png">
+        <img src="/images/buttons/branches/Button-AddBranch-{{key}}.png">
+    </label>
+</template>
+
+<template name="serviceTypeCheckboxModal">
+    <label class="img-checkbox img-checkbox-grid btn-service-type-checkbox-modal" data-value="{{value}}">
+        <input type="checkbox">
+        <img class="on-state" src="/images/buttons/branches/Button-AddBranch-{{key}}-ON.png">
+        <img src="/images/buttons/branches/Button-AddBranch-{{key}}.png">
+    </label>
+</template>
+
+<template name="addNewProfileAddlInfo">
+    <div class="add-new-profile-additional add-new-profile-section">
+        <p class="add-new-profile-instructions">OPTIONAL INFORMATION</p>
+
+        {{#keyboardInputWrapper}}
+            <div class="align-left-form">
+                <div class="form-group">
+                    <label for="serviceDetailInput">Service Detail</label>
+                    <input class="form-control service-detail-input addl-info-keyboard" name="serviceDetailInput"
+                           placeholder="ex: 359th Infantry, 90th Division, etc.">
+                </div>
+
+                <div class="form-group">
+                    <label for="highestRankInput">Highest Rank</label>
+                    <input class="form-control highest-rank-input addl-info-keyboard" name="highestRankInput"
+                           placeholder="ex: Staff Sergeant, Captain, General, etc.">
+                </div>
+
+                <div class="form-group">
+                    <label for="medalsTextarea">Medals / Service Awards</label>
+                <textarea class="form-control medals-textarea addl-info-keyboard" name="medalsTextarea"
+                          placeholder="ex: Medal of Honor, Silver Star Medal, etc."></textarea>
+                </div>
+            </div>
+        {{/keyboardInputWrapper}}
+
+    </div>
+</template>
+
+<template name="addNewProfileStoriesPhotos">
+    <div class="add-new-profile-stories-photos add-new-profile-section">
+        <p class="add-new-profile-instructions">ADD A STORY</p>
+
+        <div class="flex-container-responsive-smalldesktop">
+            <div class="flex-perc-40 z-index-2">
+
+                <div class="align-left-form">
+                    <div class="form-group" style="margin-bottom: 15px;">
+                        <label for="storyTextarea">Add a Story or Memory</label>
+                    <textarea class="form-control story-textarea story-keyboard" id="storyTextarea"
+                              placeholder="{{placeholder}}"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="sig-textarea-label" for="sigInput">Signature</label>
+                        <input class="form-control sig-input story-keyboard" id="sigInput"
+                               placeholder="Optional">
+                    </div>
+                </div>
+
+            </div>
+            <div class="flex-perc-60">
+                {{#unless isKiosk}}
+                    <div class="add-images flex-container-vert">
+                        <label>Add Images</label>
+
+                        <p><strong>Choose a photo or scanned document to upload.</strong></p>
+
+                        <p class="image-formats">Formats allowed: PNG, JPG (JPEG), or GIF</p>
+
+                        <div class="alert alert-danger alert-dismissible bad-image-file-format" role="alert">
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span
+                                    aria-hidden="true">&times;</span></button>
+                        </div>
+
+                        <input type="file" name="photoUpload" id="photoUpload" class="photo-upload"/>
+                        <label for="photoUpload">&nbsp;</label>
+
+                        <div class="show-photos">
+                            {{> addNewProfileThumbsView }}
+                        </div>
+                    </div>
+                {{/unless}}
+            </div>
+        </div>
+    </div>
+</template>
+
+
+<template name="addNewProfileThumbsView">
+    {{#each images}}
+        <div class="add-new-profile-thumb-container">
+            <img src="{{this.url store='thumbs' uploading='/images/uploading.gif' storing='/images/storing.gif'}}"
+                 alt=""
+                 class="add-new-profile-thumb"/><span class="glyphicon glyphicon-remove new-profile-thumb-remove"
+                                                      data-id="{{this._id}}"></span>
+
+            <div class="add-new-profile-thumb-caption">
+                <div class="add-new-profile-caption-label">Caption</div>
+                    <textarea data-id="{{this._id}}" placeholder="optional"
+                              class="add-new-profile-caption-textarea">{{this.caption}}</textarea>
+            </div>
+        </div>
+    {{/each}}
+</template>
+
+<template name="addNewProfileContact">
+    <div class="add-new-profile-contact add-new-profile-section">
+        {{#keyboardInputWrapper}}
+
+            <div class="align-left-form margin-top-minus-50">
+                {{#if isKiosk}}
+                    <div class="hometown-heroes-bug-container">
+                        {{> hometownHeroesBugContactInfo }}
+                    </div>
+                {{/if}}
+
+                <form role="form" class="contact-info" autocomplete="off">
+                    <div class="form-group">
+                        <label for="contactName">Your Name</label>
+                        <input type="text" class="form-control contact-name-input contact-keyboard" name="contactName"
+                               placeholder="Optional">
+                    </div>
+                    <div class="form-group">
+                        <label for="contactEmail">Your e-mail</label>
+                        <input type="email" class="form-control contact-email-input contact-keyboard"
+                               name="contactEmail"
+                               placeholder="Optional">
+                    </div>
+                </form>
+            </div>
+        {{/keyboardInputWrapper}}
+    </div>
+</template>
+
+<template name="addNewProfileConfirmation">
+    <div class="add-new-profile-confirmation add-new-profile-section">
+        <p class="add-new-profile-instructions">YOU'RE ALMOST DONE!<br>
+            CONFIRM THE INFORMATION BELOW, THEN TAP ADD PROFILE.</p>
+
+        <table class="confirmation-table">
+            <tr>
+                <td>First Name</td>
+                <td>{{firstName}}</td>
+                <td>
+                    <div class="btn edit-detail-btn" data-propname="firstName" data-toggle="modal"
+                         data-target="#editTextDetailModalPpdx">Edit
+                        &nbsp;<span class="glyphicon glyphicon-pencil"></span>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td>Last Name</td>
+                <td>{{lastName}}</td>
+                <td>
+                    <div class="btn edit-detail-btn" data-propname="lastName" data-toggle="modal"
+                         data-target="#editTextDetailModalPpdx">Edit
+                        &nbsp;<span class="glyphicon glyphicon-pencil"></span>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td>Community</td>
+                <td>{{community}}</td>
+                <td>
+                    <div class="btn edit-detail-btn" data-propname="community" data-toggle="modal"
+                         data-target="#editTextDetailModalPpdx">Edit
+                        &nbsp;<span class="glyphicon glyphicon-pencil"></span>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td>Service</td>
+                <td>{{conflicts}}</td>
+                <td>
+                    <div class="btn edit-detail-btn" data-propname="conflicts" data-toggle="modal"
+                         data-target="#editConflictModal">Edit
+                        &nbsp;<span class="glyphicon glyphicon-pencil"></span>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td>Service Type</td>
+                <td>{{serviceTypes}}</td>
+                <td>
+                    <div class="btn edit-detail-btn" data-propname="serviceType" data-toggle="modal"
+                         data-target="#editServiceTypeModal">Edit
+                        &nbsp;<span class="glyphicon glyphicon-pencil"></span>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td>Service Detail</td>
+                <td>{{serviceDetail}}</td>
+                <td>
+                    <div class="btn edit-detail-btn" data-propname="serviceDetail" data-toggle="modal"
+                         data-target="#editTextDetailModalPpdx">Edit
+                        &nbsp;<span class="glyphicon glyphicon-pencil"></span>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td>Highest Rank</td>
+                <td>{{highestRank}}</td>
+                <td>
+                    <div class="btn edit-detail-btn" data-propname="highestRank" data-toggle="modal"
+                         data-target="#editTextDetailModalPpdx">Edit
+                        &nbsp;<span class="glyphicon glyphicon-pencil"></span>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td>Medals</td>
+                <td>{{medals}}</td>
+                <td>
+                    <div class="btn edit-detail-btn" data-propname="medals" data-toggle="modal"
+                         data-target="#editTextDetailModalPpdx">Edit
+                        &nbsp;<span class="glyphicon glyphicon-pencil"></span>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td>Your Name</td>
+                <td>{{contactName}}</td>
+                <td>
+                    <div class="btn edit-detail-btn" data-propname="contactName" data-toggle="modal"
+                         data-target="#editTextDetailModalPpdx">Edit
+                        &nbsp;<span class="glyphicon glyphicon-pencil"></span>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td>Your Email</td>
+                <td>{{contactEmail}}</td>
+                <td>
+                    <div class="btn edit-detail-btn" data-propname="contactEmail" data-toggle="modal"
+                         data-target="#editTextDetailModalPpdx">Edit
+                        &nbsp;<span class="glyphicon glyphicon-pencil"></span>
+                    </div>
+                </td>
+            </tr>
+        </table>
+
+
+        <div class="row">
+            <div class="col-sm-12">
+                <div id="editTextDetailModalPpdx" class="modal fade confirmation-modal" role="dialog"
+                     data-backdrop="static">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-body">
+                                <p>Edit <span class="detail-textarea-label">{{modalLabel}}</span></p>
+
+                                <form role="form" class="text-detail-confirmation-form" autocomplete="off">
+                                    <div class="form-group">
+                                        <input class="form-control detail-textarea detail-keyboard"
+                                               id="detailTextarea"
+                                               type="{{modalFieldType}}" {{modalFieldRequired}} value="{{modalValue}}">
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="modal-footer">
+                                <div class="btn-cancel-edit-detail img-button ppdx-modal-btn ppdx-modal-btn-cancel-edit"
+                                     data-dismiss="modal">
+                                    <img src="/images/buttons/Button-Edit-Cancel.png">
+                                    <img src="/images/buttons/Button-Edit-Cancel-ON.png">
+                                </div>
+                                <div class="btn-accept-edit-detail img-button ppdx-modal-btn ppdx-modal-btn-accept-edit">
+                                    <img src="/images/buttons/Button-Edit-Save.png">
+                                    <img src="/images/buttons/Button-Edit-Save-ON.png">
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+                <div id="editConflictModal" class="modal fade confirmation-modal confirmation-modal-wide" role="dialog"
+                     data-backdrop="static">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-body">
+                                <p>Edit <span class="detail-textarea-label">{{modalLabel}}</span><br>
+                                    At least one must be selected.</p>
+
+                                <form role="form" class="conflicts-confirmation-form" autocomplete="off">
+                                    <div class="conflicts-grid mult-select-grid">
+                                        {{#each conflict}}
+                                            {{> conflictsCheckboxModal}}
+                                        {{/each}}
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="modal-footer">
+                                <div class="btn-cancel-edit-conflicts img-button ppdx-modal-btn ppdx-modal-btn-cancel-edit"
+                                     data-dismiss="modal">
+                                    <img src="/images/buttons/Button-Edit-Cancel.png">
+                                    <img src="/images/buttons/Button-Edit-Cancel-ON.png">
+                                </div>
+                                <div class="btn-accept-edit-conflicts img-button ppdx-modal-btn ppdx-modal-btn-accept-edit">
+                                    <img src="/images/buttons/Button-Edit-Save.png">
+                                    <img src="/images/buttons/Button-Edit-Save-ON.png">
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+                <div id="editServiceTypeModal" class="modal fade confirmation-modal confirmation-modal-wide"
+                     role="dialog" data-backdrop="static">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-body">
+                                <p>Edit <span class="detail-textarea-label">{{modalLabel}}</span></p>
+
+                                <form role="form" class="servicetype-confirmation-form" autocomplete="off">
+                                    <div class="service-type-grid mult-select-grid">
+                                        {{#each serviceType}}
+                                            {{> serviceTypeCheckboxModal}}
+                                        {{/each}}
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="modal-footer">
+                                <div class="btn-cancel-edit-servicetype img-button ppdx-modal-btn ppdx-modal-btn-cancel-edit"
+                                     data-dismiss="modal">
+                                    <img src="/images/buttons/Button-Edit-Cancel.png">
+                                    <img src="/images/buttons/Button-Edit-Cancel-ON.png">
+                                </div>
+                                <div class="btn-accept-edit-servicetype img-button ppdx-modal-btn ppdx-modal-btn-accept-edit">
+                                    <img src="/images/buttons/Button-Edit-Save.png">
+                                    <img src="/images/buttons/Button-Edit-Save-ON.png">
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</template>
+
+
+<template name="addNewProfileDone">
+    <div class="add-new-profile-done add-new-profile-section">
+        <div class="flex-container-vert flex-container-centered">
+            <h1 class="centered extra-top-margin">PROFILE CREATED!</h1>
+
+            <div class="profile-created-name">{{fullName}}</div>
+
+            <div class="btn-view-new-profile img-button" data-value="{{value}}">
+                <a href="/profile/{{profileID}}">
+                    <img src="/images/buttons/addProfile/Button-GoToProfile.png">
+                    <img src="/images/buttons/addProfile/Button-GoToProfile-ON.png">
+                </a>
+            </div>
+
+            {{#if isKiosk}}
+                <div class="hometown-heroes-bug-container">
+                    {{> hometownHeroesBug }}
+                </div>
+            {{/if}}
+        </div>
+    </div>
+
+</template>
+
+<template name="browseByConflict">
+    <h1 class="centered">BROWSE BY SERVICE</h1>
+
+    <div class="conflicts-grid">
+        {{#each conflict}}
+            {{> conflictsButton}}
+        {{/each}}
+    </div>
+</template>
+
+<template name="conflictsButton">
+    <div class="btn-conflicts img-button" data-value="{{value}}">
+        <img src="/images/buttons/browseService/Button-BrowseService-{{key}}.png">
+        <img src="/images/buttons/browseService/Button-BrowseService-{{key}}-ON.png">
+    </div>
+</template>
+
+<template name="browseByConflictResults">
+    {{#col12Wrapper}}
+        <h1 class="centered text-uppercase">BROWSE BY SERVICE: {{conflictLabel}}</h1>
+        <p class="browse-by-conflicts-results-desc">Some descriptive text will be needed here about navigation and
+            choosing by last initial.</p>
+    {{/col12Wrapper}}
+    <div class="flex-grow-1 flex-container-vert">
+        <div class="flex-grow-1 flex-container">
+            <div class="conflict-arrow-container flex-container-vert">
+                <img src="/images/buttons/Arrow-Left.png" role="button"
+                     class="conflict-arrow conflict-left-arrow">
+            </div>
+            <div class="browse-by-conflicts-results-viewport flex-container-vert flex-grow-1">
+                <div class="browse-by-conflicts-results-container">
+                    {{#each profile}}
+                        {{> browseByConflictEntry }}
+                    {{/each}}
+                </div>
+            </div>
+            <div class="conflict-arrow-container flex-container-vert">
+                <img src="/images/buttons/Arrow-Right.png" role="button"
+                     class="conflict-arrow conflict-right-arrow">
+            </div>
+        </div>
+        <div class="letter-buttons-container">
+            {{> letterButtons }}
+        </div>
+    </div>
+</template>
+
+<template name="browseByConflictEntry">
+    <a href="/profile/{{_id}}">
+        <div class="browse-by-conflicts-result col{{cap}}">
+            {{#if profilePhotoID}}
+                {{#with image}}
+                    <img src="{{this.url store='thumbs'}}"
+                         alt="thumb"
+                         class="browse-by-conflicts-thumb">
+                {{/with}}
+            {{else}}
+                <img src="/images/avatar.placeholder.100.png" alt="thumb"
+                     class="browse-by-conflicts-thumb">
+            {{/if}}
+            <div class="browse-by-conflicts-name">{{firstName}} {{lastName}}</div>
+        </div>
+    </a>
+</template>
+
+<template name="letterButtons">
+    {{#each letter}}
+        {{#if this.enabled}}
+            <button type="button" class="ui-keyboard-button ppdx-kybd-btn letter-button"
+                    data-letter="{{this.initial}}">{{this.initial}}
+            </button>
+        {{else}}
+            <button type="button" class="ui-keyboard-button ppdx-kybd-btn letter-button disabled"
+                    disabled>{{this.initial}}
+            </button>
+        {{/if}}
+    {{/each}}
+</template>
+
+<template name="photoGallery">
+
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-12" style="position: relative">
+                <h2>Photo Gallery</h2>
+
+                <div class="photo-gallery-viewport">
+                    <div class="photo-gallery-grid">
+                        {{#each photo}}
+                            {{> photoGalleryTile }}
+                        {{/each}}
+                    </div>
+                </div>
+                <div class="photo-gallery-left-arrow"></div>
+                <div class="photo-gallery-right-arrow"></div>
+            </div>
+        </div>
+    </div>
+</template>
+
+<template name="photoGalleryTile">
+    <div class="photo-gallery-grid-item"><a href="/profile/{{profileID}}"><img
+            src="{{this.url store='thumbs'}}" alt="thumb"
+            class="photo-gallery-tile new-tile"></a>
+    </div>
+</template>
+
+<template name="profile">
+    <div class="flex-container-responsive-tablet profile">
+        <div class="flex-perc-50 dogtag-side flex-container-vert">
+            <div class="profile-dogtag-container">
+                <img src="/images/DogTags-01.png" class="img-responsive" alt="dogtag background">
+
+                <div class="profile-dogtag-contents">
+                    <div class="profile-name {{profileLongName}}">{{firstName}} {{lastName}}</div>
+                    <div class="profile-community">{{community}}&nbsp;</div>
+                    {{#each profileconflict}}
+                        <div class="profile-conflicts num-conflicts-{{numConflicts}}">{{label}}</div>
+                    {{/each}}
+                </div>
+            </div>
+            <div class="profile-dogtag-double-line"></div>
+            <div class="profile-notepad-container">
+                <div class="profile-notepad-contents">
+                    <div class="service-detail-header">
+                        {{#each profileServiceType}}
+                            <div>{{this}}</div>
+                        {{/each}}
+                    </div>
+                    <div class="service-detail-block">
+                        <div class="service-detail-row">
+                            <div class="service-detail-name">Service Detail</div>
+                            <div class="service-detail-desc">{{serviceDetail}}</div>
+                        </div>
+                        <div class="service-detail-row">
+                            <div class="service-detail-name">Highest Rank</div>
+                            <div class="service-detail-desc">{{highestRank}}</div>
+                        </div>
+                        <div class="service-detail-row">
+                            <div class="service-detail-name">Medals &amp; Honors</div>
+                            <div class="service-detail-desc">{{medals}}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="add-memories-btn-container">
+                <div class="add-memories-btn" data-toggle="modal" data-target="#addMemoryModal"></div>
+            </div>
+        </div>
+        <div class="flex-perc-50 memories-side">
+            <div class="memories">
+                {{#each memory}}
+                    {{#if this.url}}
+                        <img src="{{this.url}}" class="memory-photo memory">
+                        {{#if this.caption }}
+                            <div class="memory-photo-caption">{{this.caption}}</div>
+                        {{/if}}
+                    {{else}}
+                        <div class="memory-story memory">{{this.text}}
+                            {{#if this.sig}}
+                                <div class="memory-story-sig">&mdash; {{this.sig}}</div>
+                            {{/if}}
+                        </div>
+                    {{/if}}
+                {{else}}
+                    <div class="profile-no-memories flex-container-vert">
+                        <p><strong>No memories have been added yet.</strong></p>
+                        <p>Help us honor this person by adding to <br>
+                            this collection of photos and memories.</p>
+                    </div>
+                {{/each}}
+            </div>
+
+        </div>
+    </div>
+    <div id="addMemoryModal" class="modal fade" role="dialog" data-backdrop="static">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-body">
+
+                    <div class="flex-container-responsive-smalldesktop">
+                        <div class="flex-perc-40 z-index-2">
+
+                            <div class="form-group" style="margin-bottom: 15px;">
+                                <label for="storyTextarea">Add a Memory about {{fullName}}</label>
+                                    <textarea class="form-control story-textarea story-keyboard"
+                                              id="storyTextarea"></textarea>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="sig-textarea-label" for="sigInput">Signature</label>
+                                <input class="form-control sig-input story-keyboard" id="sigInput"
+                                       placeholder="Optional">
+                            </div>
+
+                        </div>
+                        <div class="flex-perc-60">
+                            {{#unless isKiosk}}
+                                <div class="add-images flex-container-vert">
+                                    <label>Add Images</label>
+
+                                    <p><strong>Choose a photo or scanned document to upload.</strong></p>
+
+                                    <p class="image-formats">Formats allowed: PNG, JPG (JPEG), or GIF</p>
+
+                                    <div class="alert alert-danger alert-dismissible bad-image-file-format"
+                                         role="alert">
+                                        <button type="button" class="close" data-dismiss="alert"
+                                                aria-label="Close"><span
+                                                aria-hidden="true">&times;</span></button>
+                                    </div>
+
+                                    <input type="file" name="photoUpload" id="photoUpload" class="photo-upload"/>
+                                    <label for="photoUpload">&nbsp;</label>
+
+                                    <div class="show-photos">
+                                        {{> addNewProfileThumbsView }}
+                                    </div>
+                                </div>
+                            {{/unless}}
+                        </div>
+                    </div>
+
+                    {{#if isKiosk}}
+                        <div class="hometown-heroes-bug-container">
+                            {{> hometownHeroesBug }}
+                        </div>
+                    {{/if}}
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-modal btn-cancel-memories" data-dismiss="modal"></button>
+                    <button type="button" class="btn-modal btn-add-memories" data-dismiss="modal"></button>
+                </div>
+            </div>
+        </div>
+        <div id="preload-button-edit-cancel"></div>
+        <div id="preload-button-edit-save"></div>
+    </div>
+
+    <div id="preload-button-profile-add-memory"></div>
+</template>
+
+<template name="hometownHeroesBug">
+    <img src="/images/Logo-HometownHeroes.png" class="hometown-heroes-bug-img">
+
+    <div class="hometown-heroes-bug-text">
+        <div>
+            <p>HOMETOWN HEROES IS ONLINE!</p>
+
+            <p>Be sure to visit us online to add photos or additional stories.</p>
+        </div>
+    </div>
+</template>
+
+<template name="hometownHeroesBugContactInfo">
+    <img src="/images/Logo-HometownHeroes.png" class="hometown-heroes-bug-img contact-info">
+
+    <div class="hometown-heroes-bug-text contact-info">
+        <div>
+            <p>HOMETOWN HEROES IS ONLINE!</p>
+
+            <p class="get-a-link">Get a link to this profile e-mailed to<br>
+                you so you can add more later.</p>
+        </div>
+    </div>
+</template>
+
+<template name="col12Wrapper">
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-12">
+                {{> Template.contentBlock}}
+            </div>
+        </div>
+    </div>
+</template>
+
+<!-- a number of views share the same on-screen keyboard and layout -->
+<template name="keyboardInputWrapper">
+    {{#if isKiosk}}
+        <!-- using responsive container for padding -->
+        <div class="flex-container-responsive-smalldesktop">
+            <div class="flex-perc-40 z-index-2">
+                {{> Template.contentBlock}}
+            </div>
+            <div class="flex-perc-60">
+            </div>
+        </div>
+    {{else}}
+        <div class="perc-responsive">
+            {{> Template.contentBlock}}
+        </div>
+    {{/if}}
+</template>
+
+<template name="adminLogin">
+    <h2>Admin Login</h2>
+
+    {{> loginButtons}}
+</template>
+
+
+<template name="adminImagePreview">
+    <div class="admin-preview-thumb-container"><img src="{{file.url store='thumbs'}}" alt="thumb"
+                                                    class="admin-preview-thumb"></div>
+    <p class="admin-preview-thumb-id">{{file._id}}</p>
+    {{#if file.curated}}<p>Curated image</p>{{/if}}
+</template>
+
+<template name="linkToProfile">
+    <a href="/profile/{{doc._id}}" target="_blank">{{value}}</a>
+</template>
+
+<template name="profileImages">
+    <h2>Profile-related Images</h2>
+    {{#each images}}
+        <div class="admin-image-div">
+            <a href="{{this.url}}" class="fancybox admin-fancybox-link" rel="gallery" title="{{this.caption}}">
+                <img src="{{this.url store='thumbs'}}" alt="thumb" class="admin-image-thumb"></a>
+
+            <div class="admin-image-info">
+                <div class="admin-image-info-item">
+                    <div class="admin-image-info-header">Image ID</div>
+                    <div class="admin-image-info-content">{{this._id}}</div>
+                </div>
+                <div class="admin-image-info-item">
+                    <div class="admin-image-info-header">Profile ID</div>
+                    <div class="admin-image-info-content"><a
+                            href="/profile/{{this.profileID}}" target="_blank">{{this.profileID}}</a></div>
+                    <button type="button" data-id="{{this.profileID}}"
+                            class="btn btn-default btn-md btn-edit-profile"><span
+                            class="glyphicon glyphicon-pencil"></span></button>
+                </div>
+                <div class="admin-image-info-item" style="margin-bottom: 0">
+                    <div class="admin-image-info-header">Caption</div>
+                    <textarea data-id="{{this._id}}"
+                              class="admin-image-info-content admin-image-caption">{{this.caption}}</textarea>
+                </div>
+                <div title="Profile Photo" class="admin-image-info-profile-photo"
+                     style="visibility:{{isProfilePhotoVis}}">
+                    <i class="fa fa-user" aria-hidden="true"></i>
+                </div>
+
+                <div data-toggle="buttons" class="admin-image-curated btn-curated-checkbox-container">
+                    <label data-id="{{this._id}}"
+                           class="btn btn-default btn-xs btn-curated-checkbox {{#if this.curated}}active{{/if}}">
+                        <input type="checkbox" autocomplete="off" {{isChecked}}>
+                        <span class="glyphicon glyphicon-ok"></span>
+                        <i class="fa fa-square-o" aria-hidden="true"></i>
+                        Curated
+                    </label>
+                </div>
+            </div>
+        </div>
+    {{/each}}
+
+    {{> adminImagesPagination adminOnly=adminOnly}}
+</template>
+
+<template name="adminImagesPagination">
+    <nav class="navbar navbar-default navbar-fixed-bottom admin-images-footer {{#if adminOnly}}admin-only{{/if}}">
+        <div class="container-fluid">
+            <div class="form-group items-per-page">
+                <label for="itemsPerPage">Images per page</label>
+                <select class="form-control input-sm" id="itemsPerPage">
+                    <option>4</option>
+                    <option selected>6</option>
+                    <option>10</option>
+                    <option>20</option>
+                    <option>50</option>
+                </select>
+            </div>
+
+            {{#if adminOnly}}
+                <div class="items-adminonly-upload form-inline">
+                <span class="btn btn-sm btn-default btn-file"> Upload Image
+                    <input type="file" name="photoUpload" class="photo-upload"></span>
+                </div>
+            {{/if}}
+
+            <div class="items-nav-filters form-inline">
+                {{#unless adminOnly}}
+                    <div data-toggle="buttons" class="admin-image-curated filter-curated">
+                        <label class="btn btn-default btn-sm btn-filter-curated">
+                            <input type="checkbox" autocomplete="off">
+                            <span class="glyphicon glyphicon-ok"></span>
+                            <i class="fa fa-square-o" aria-hidden="true"></i>
+                            Curated Only
+                        </label>
+                    </div>
+                    <label for="filterByProfile">Profile ID</label>
+                    <input type="text" class="form-control input-filter-by-profile input-sm" name="filterByProfile">
+                {{/unless}}
+                <label for="filterByImage">Image ID</label>
+                <input type="text" class="form-control input-filter-by-image input-sm" name="filterByImage">
+            </div>
+
+            <div class="items-nav form-inline">
+                <button type="button" class="btn btn-default btn-sm btn-image-nav-prev {{prevDisabled}}">Previous
+                </button>
+                <textarea class="form-control input-img-nav input-sm">{{currentIndex}}</textarea>
+                <button type="button" class="btn btn-default btn-sm btn-image-nav-next {{nextDisabled}}">Next</button>
+            </div>
+
+        </div>
+    </nav>
+</template>
+
+<template name="adminOnlyImages">
+    <h2>Admin-only (Curated) Images</h2>
+
+    <div class="alert alert-danger alert-dismissible bad-image-file-format" role="alert">
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span
+                aria-hidden="true">&times;</span></button>
+    </div>
+    {{#each images}}
+        <div class="admin-image-div">
+            <a href="{{this.url}}" class="fancybox admin-fancybox-link" rel="adminOnlyGallery" title="{{this.caption}}">
+                <img src="{{this.url store='adminthumbs' uploading='/images/uploading.gif' storing='/images/storing.gif'}}"
+                     alt="thumb" class="admin-image-thumb admin-only-image-thumb"></a>
+
+            <div class="admin-image-info">
+                <div class="admin-image-info-item">
+                    <div class="admin-image-info-header">Image ID</div>
+                    <div class="admin-image-info-content">{{this._id}}</div>
+                </div>
+                <button type="button" data-id="{{this._id}}" class="btn btn-danger btn-delete-adminOnly-image">Delete
+                </button>
+            </div>
+
+        </div>
+    {{else}}
+        <div class="alert alert-info" style="width: 80%">
+            No admin-only images have been uploaded to the database yet.
+        </div>
+    {{/each}}
+    {{> adminImagesPagination  adminOnly=adminOnly}}
+</template>
+
+<template name="loading">
+    <!-- show blank screen for now -->
+    {{> spinner}}
+</template>
+
+<template name="notFound">
+    <h1 class="centered">Page not found</h1>
+    <p class="centered">If you entered a web address, please make sure it's correct.</p>
+</template>

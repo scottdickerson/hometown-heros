@@ -1,0 +1,1 @@
+GraphicsMagick must be installed on server
