@@ -164,7 +164,6 @@ FS.Store.GridFS = function(name, options) {
     init: function(callback) {
       mongodb.MongoClient.connect(options.mongoUrl, mongoOptions, function (err, db) {
         if (err) { return callback(err); }
-        console.error('database object returned from client connect call', JSON.stringify(db));
         self.db = db;
         
         // ensure that indexes are added as otherwise CollectionFS fails for Mongo >= 3.0
