@@ -183,10 +183,13 @@ FS.HTTP.Handlers.Get = function httpGetHandler(ref) {
   // Some browsers cope better if the content-range header is
   // still included even for the full file being returned.
   self.addHeader('Content-Range', range.unit + ' ' + range.start + '-' + range.end + '/' + range.size);
+  FS.debug && console.log("CFS: AccessPoint: HTTP GET handler", range);
 
   // If a chunk/range was requested instead of the whole file, serve that'
   if (range.partial) {
     self.setStatusCode(206, 'Partial Content');
+    // Inform clients about length (or chunk length in case of ranges)
+    self.addHeader('Content-Length', range.length);
   } else {
     self.setStatusCode(200, 'OK');
   }
@@ -196,8 +199,7 @@ FS.HTTP.Handlers.Get = function httpGetHandler(ref) {
     self.addHeader(header[0], header[1]);
   });
 
-  // Inform clients about length (or chunk length in case of ranges)
-  self.addHeader('Content-Length', range.length);
+  
 
   // Last modified header (updatedAt from file info)
   self.addHeader('Last-Modified', copyInfo.updatedAt.toUTCString());

@@ -1,7 +1,8 @@
 
 numRandomImages = 0;
 var subscriptions = new SubsManager();
-FS.debug = true;
+// Turn this next line on if we need to debug the file transfers
+// FS.debug = true;
 
 Router.configure({
     layoutTemplate: 'main',
