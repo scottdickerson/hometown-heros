@@ -1,0 +1,15 @@
+To test locally you need to:
+
+
+export MONGO_URL=<see online document>
+export MAIL_URL=<see online document>
+
+Then to start the app
+
+`meteor run`
+
+You can test it locally on http://127.0.0.1:3000
+
+To publish to nodechef you need to login to the nodechef CLI
+nc login -em <username> -pw <password>
+nc deploy -i hometownheroes
