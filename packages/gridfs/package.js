@@ -7,8 +7,6 @@ Package.describe({
 
 Npm.depends({
   mongodb: '3.6.0',
-  'gridfs-stream': '1.1.1'
-  //'gridfs-locking-stream': '0.0.3'
 });
 
 Package.onUse(function (api) {
