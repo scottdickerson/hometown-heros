@@ -1,6 +1,7 @@
 
 numRandomImages = 0;
 var subscriptions = new SubsManager();
+FS.debug = true;
 
 Router.configure({
     layoutTemplate: 'main',
