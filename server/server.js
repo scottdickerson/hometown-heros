@@ -1,7 +1,7 @@
 
 Meteor.startup(function () {
     // following environment variable set up directly on Modulus/Xervo account
-    // process.env.MAIL_URL = "smtp://servicedatabasekiosk@harrisoncountymuseum.org:nG21GN5wMJyPGsDAlHt1@smtp.bizmail.yahoo.com:465";
+   //  process.env.MAIL_URL has to be set according to the google drive document "Hometown Heroes: Database information"
 
     Profiles._ensureIndex({randomPoint: '2dsphere'});
 
