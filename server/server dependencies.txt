@@ -1,1 +1,4 @@
 GraphicsMagick must be installed on server
+
+On Mac, install Rosetta 2
+softwareupdate --install-rosetta --agree-to-license
