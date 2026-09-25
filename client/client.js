@@ -203,6 +203,10 @@ initPhotoCarousel = function () {
             }
         }]
     });
+    // variableWidth measures slides at init; re-measure as slow GridFS thumbs finish loading
+    $('.front-carousel-image-container img').one('load', function () {
+        $('.front-carousel-image-container').slick('setPosition');
+    });
     $('.photo-carousel-row').animate({opacity: 1}, 600);
 
 }
