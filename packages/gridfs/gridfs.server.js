@@ -84,7 +84,10 @@ FS.Store.GridFS = function(name, options = {}) {
 
     createReadStream: function(fileKey, options = {}) {
       FS.debug && console.log(`GRIDFS createReadStream: `, gridFSOptions, fileKey, options);
-      return self.gfs.openDownloadStream(new ObjectID(fileKey._id), options);
+      var opts = { ...options };
+      // CFS passes an inclusive `end`; GridFSBucket's `end` is exclusive
+      if (typeof opts.end === 'number') opts.end += 1;
+      return self.gfs.openDownloadStream(new ObjectID(fileKey._id), opts);
     },
 
     createWriteStream: function(fileKey, options = {}) {
