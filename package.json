@@ -2,7 +2,9 @@
   "name": "papadex_app2",
   "private": true,
   "scripts": {
-    "start": "meteor run"
+    "start": "meteor run",
+    "start-mac": "arch -x86_64 .meteor-cli/.meteor/meteor run",
+    "postinstall": "sh scripts/install-meteor.sh"
   },
   "dependencies": {
     "@babel/runtime": "^7.11.2",

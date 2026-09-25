@@ -1527,7 +1527,8 @@ initPhotoGallery = function (template) {
     });
 
     for (var i in images) {
-        totalWidth += images[i].original.dims.aspect * photoHeight + photoMargin;
+        var dims = images[i].original.dims; // missing when GraphicsMagick failed at upload
+        if (dims) totalWidth += dims.aspect * photoHeight + photoMargin;
     }
 
     // set container to 1/3 of total width, adding a bit for variation in widths

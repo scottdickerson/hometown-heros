@@ -1,8 +1,8 @@
 To test locally you need to:
 
 
-export MONGO_URL=<see online document>
-export MAIL_URL=<see online document>
+export MONGO_URL=<see Google Drive document called "Hometown Heroes: Database information">
+export MAIL_URL=<see Google Drive document called "Hometown Heroes: Database information">
 
 Then to start the app
 
