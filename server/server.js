@@ -28,7 +28,7 @@ Meteor.methods({
             from: from,
             subject: subject,
             text: text,
-            bcc: 'hchminfo@gmail.com'
+            bcc: KIOSK_BCC_EMAIL
         });
     },
     getImagesCount: function () {
