@@ -1,5 +1,6 @@
 
 numRandomImages = 0;
+KIOSK_FROM_EMAIL = 'kiosk@ms.harrisoncountymuseum.org';
 var subscriptions = new SubsManager();
 // Turn this next line on if we need to debug the file transfers
 // FS.debug = true;

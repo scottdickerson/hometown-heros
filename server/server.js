@@ -11,7 +11,7 @@ Meteor.startup(function () {
         engine: new EasySearch.MongoDB()
     });
 
-    Accounts.emailTemplates.from = "HCHM Kiosk <servicedatabasekiosk@harrisoncountymuseum.org>";
+    Accounts.emailTemplates.from = "HCHM Kiosk <" + KIOSK_FROM_EMAIL + ">";
 
 });
 

@@ -676,7 +676,7 @@ Template.addNewProfile.events({
             msg += "Thanks from the HCHM staff!\n\n";
             msg += "(This email is automatically generated. Please do not reply to it.)";
 
-            Meteor.call('sendEmail', cEmail, 'servicedatabasekiosk@harrisoncountymuseum.org', 'Automated email from HCHM Kiosk', msg);
+            Meteor.call('sendEmail', cEmail, KIOSK_FROM_EMAIL, 'Automated email from HCHM Kiosk', msg);
         }
 
         // insert any "truthy" story added
