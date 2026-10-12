@@ -102,6 +102,16 @@ Router.route('/searchByName', {
 });
 Router.route('/profileImages', {
     layoutTemplate: 'edAdmin',
+    onBeforeAction: function () {
+        // admins only: this page curates, captions and deletes images
+        if (Meteor.loggingIn()) {
+            this.render('loading');
+        } else if (!Roles.userIsInRole(Meteor.userId(), ['admin'])) {
+            this.redirect('/adminLogin');
+        } else {
+            this.next();
+        }
+    },
     // data: function() {
     //     return [Profiles.find({}),Images.find({})];
     // },

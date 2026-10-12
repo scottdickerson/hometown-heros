@@ -1604,6 +1604,29 @@ Template.profileImages.events({
             Images.update(id, {$set: {'curated': true}});
         }
 
+    }, 'click .btn-delete-profile-image': function (e) {
+        var imageID = $(e.currentTarget).data("id");
+        var image = Images.findOne(imageID);
+        var profile = image && Profiles.findOne(image.profileID);
+        var whose = profile ? profile.firstName + " " + profile.lastName + "'s" : "its";
+        if (!confirm("Delete this photo from " + whose + " profile? This can't be undone.")) {
+            return;
+        }
+        Images.remove(imageID, function (error) {
+            if (error) {
+                alert("The photo couldn't be deleted:\n\n" + error.reason);
+                return;
+            }
+            if (profile) {
+                // take it off the profile, moving the main photo to the next remaining one if needed
+                var remaining = _.without(profile.images || [], imageID);
+                var modifier = {$set: {images: remaining}};
+                if (profile.profilePhotoID == imageID) {
+                    modifier.$set.profilePhotoID = remaining[0] || "";
+                }
+                Profiles.update(profile._id, modifier);
+            }
+        });
     }, 'click a[rel=gallery]': function (e) {
         e.preventDefault();
     }, 'change .admin-image-caption': function (e) {
