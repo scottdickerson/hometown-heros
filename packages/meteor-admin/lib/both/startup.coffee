@@ -126,8 +126,12 @@ adminCreateRouteEditOptions = (collection, collectionName) ->
 		template: "AdminDashboardEdit"
 		controller: "AdminController"
 		waitOn: ->
-			Meteor.subscribe 'adminCollectionDoc', collectionName, parseID(@params._id)
-			collection.routes?.edit?.waitOn
+			# call the app's edit waitOn rather than returning it: iron-router treats a returned
+			# function as a ready check and re-calls it endlessly, piling up subscriptions
+			_.compact [
+				Meteor.subscribe 'adminCollectionDoc', collectionName, parseID(@params._id)
+				collection.routes?.edit?.waitOn?.call(this)
+			]
 		action: ->
 			@render()
 		onAfterAction: ->
