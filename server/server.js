@@ -36,6 +36,7 @@ function sendProfileAdditionsEmail(id, pending) {
         msg += "\nStory" + (story.sig ? " signed " + story.sig : "") + ":\n" + story.text + "\n";
     });
     msg += "\nView the profile: " + SITE_URL + "profile/" + id + "\n";
+    msg += "Edit it in the admin: " + SITE_URL + "admin/Profiles/" + id + "/edit\n";
     if (pending.imageCount) {
         msg += "Review the photos (search for the hero's name): " + SITE_URL + "profileImages\n";
     }
