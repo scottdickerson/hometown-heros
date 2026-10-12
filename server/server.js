@@ -1,4 +1,8 @@
 
+// set in the NodeChef environment variables; restart the app to pick up changes
+var KIOSK_FROM_EMAIL = process.env.KIOSK_FROM_EMAIL || 'kiosk@fi.harrisoncountymuseum.org';
+var KIOSK_BCC_EMAIL = process.env.KIOSK_BCC_EMAIL || 'kiosk@ms.harrisoncountymuseum.org';
+
 Meteor.startup(function () {
     // following environment variable set up directly on Modulus/Xervo account
    //  process.env.MAIL_URL has to be set according to the google drive document "Hometown Heroes: Database information"
@@ -16,8 +20,8 @@ Meteor.startup(function () {
 });
 
 Meteor.methods({
-    sendEmail: function (to, from, subject, text) {
-        check([to, from, subject, text], [String]);
+    sendEmail: function (to, subject, text) {
+        check([to, subject, text], [String]);
 
         // Let other method calls from the same client start running,
         // without waiting for the email sending to complete.
@@ -25,7 +29,7 @@ Meteor.methods({
 
         Email.send({
             to: to,
-            from: from,
+            from: KIOSK_FROM_EMAIL,
             subject: subject,
             text: text,
             bcc: KIOSK_BCC_EMAIL
