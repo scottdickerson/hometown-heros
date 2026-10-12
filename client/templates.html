@@ -1018,6 +1018,10 @@
     {{#if file.curated}}<p>Curated image</p>{{/if}}
 </template>
 
+<template name="adminDate">
+    {{formatAdminDate value}}
+</template>
+
 <template name="linkToProfile">
     <a href="/profile/{{doc._id}}" target="_blank">{{value}}</a>
 </template>

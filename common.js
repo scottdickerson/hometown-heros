@@ -391,6 +391,25 @@ Schemas.Profiles = new SimpleSchema({
         autoValue: function () {
             return [Math.random(), 0];
         }
+    },
+    // profiles created before these existed are backfilled on server startup (server/server.js)
+    createdAt: {
+        type: Date,
+        optional: true,
+        autoValue: function () {
+            if (this.isInsert) {
+                return new Date();
+            }
+        }
+    },
+    updatedAt: {
+        type: Date,
+        optional: true,
+        autoValue: function () {
+            if (this.isUpdate) {
+                return new Date();
+            }
+        }
     }
 });
 
@@ -402,12 +421,16 @@ AdminConfig = {
     collections: {
         Profiles: {
             icon: 'book',
-            omitFields: ['randomPoint'],
+            omitFields: ['randomPoint', 'createdAt', 'updatedAt'],
             tableColumns: [
                 {label: 'ID', name: '_id', template: 'linkToProfile'},
                 {label: 'First Name', name: 'firstName'},
-                {label: 'Last Name', name: 'lastName'}
+                {label: 'Last Name', name: 'lastName'},
+                {label: 'Added', name: 'createdAt', template: 'adminDate'},
+                {label: 'Updated', name: 'updatedAt', template: 'adminDate'}
             ],
+            // newest added first (column 3 is "Added")
+            order: [[3, 'desc']],
             color: 'red',
             routes: {
                 edit: {

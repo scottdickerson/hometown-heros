@@ -64,6 +64,9 @@ $.validator.setDefaults({
 Template.registerHelper('isKiosk', function () {
     return Session.get("isKiosk");
 });
+Template.registerHelper('formatAdminDate', function (date) {
+    return date ? date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], {hour: 'numeric', minute: '2-digit'}) : '';
+});
 Template.registerHelper('isHomePage', function () {
     var routeName = Router.current().route.getName();
     return routeName == "home" || routeName == "kioskMode";

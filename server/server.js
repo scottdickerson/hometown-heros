@@ -55,6 +55,19 @@ Meteor.startup(function () {
 
     Accounts.emailTemplates.from = "HCHM Kiosk <" + KIOSK_FROM_EMAIL + ">";
 
+    // estimate createdAt for profiles saved before it existed: their earliest story or photo date.
+    // bypassCollection2 so the backfill doesn't also stamp updatedAt
+    Profiles.find({createdAt: {$exists: false}}, {fields: {stories: 1, images: 1}}).forEach(function (profile) {
+        var times = _.pluck(profile.stories || [], 'createdAt');
+        Images.find({_id: {$in: profile.images || []}}, {fields: {createdAt: 1}}).forEach(function (image) {
+            times.push(image.createdAt);
+        });
+        times = _.filter(times, _.isNumber);
+        if (times.length) {
+            Profiles.update(profile._id, {$set: {createdAt: new Date(_.min(times))}}, {bypassCollection2: true});
+        }
+    });
+
     // e-mail staff (and the visitor, if they gave an address) whenever a profile is created.
     // ponytail: every server instance sends its own copy; switch to a server method if NodeChef is scaled past one container
     var initializing = true;
