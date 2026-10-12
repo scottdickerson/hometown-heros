@@ -73,7 +73,20 @@ Router.route('/kioskMode', {
     name: "kioskMode",
     template: 'home',
     onAfterAction: function () {
-        setTimeout(kioskMode, 2000, true);
+        // remembered so kiosk mode survives reloads (e.g. hot code push after a deploy)
+        setKioskDevice(true);
+        setTimeout(function () {
+            if (!Session.get('isKiosk')) {
+                kioskMode(true);
+            }
+        }, 2000);
+    }
+});
+
+Router.route('/exitKioskMode', {
+    onBeforeAction: function () {
+        setKioskDevice(false);
+        window.location = '/';
     }
 });
 

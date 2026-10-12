@@ -102,7 +102,7 @@ function returnHomeWhenIdle() {
 }
 
 Template.nav.onCreated(function () {
-    kioskMode(false);
+    kioskMode(isKioskDevice());
 });
 Template.nav.onRendered(function () {
     document.addEventListener('touchstart', function (event) {
@@ -1731,6 +1731,25 @@ Template.adminImagesPagination.events({
 //        AdminImages.remove(imageID);
 //    }
 //});
+
+// localStorage can throw when storage is blocked, so treat that as "not a kiosk"
+isKioskDevice = function () {
+    try {
+        return localStorage.getItem('isKiosk') == 'true';
+    } catch (e) {
+        return false;
+    }
+};
+setKioskDevice = function (value) {
+    try {
+        if (value) {
+            localStorage.setItem('isKiosk', 'true');
+        } else {
+            localStorage.removeItem('isKiosk');
+        }
+    } catch (e) {
+    }
+};
 
 kioskMode = function (value) {
     check(value, Boolean);
