@@ -1031,6 +1031,11 @@
 
             <div class="admin-image-info">
                 <div class="admin-image-info-item">
+                    <div class="admin-image-info-header">Hero</div>
+                    <div class="admin-image-info-content"><a
+                            href="/profile/{{this.profileID}}" target="_blank">{{heroName}}</a></div>
+                </div>
+                <div class="admin-image-info-item">
                     <div class="admin-image-info-header">Image ID</div>
                     <div class="admin-image-info-content">{{this._id}}</div>
                 </div>
@@ -1075,9 +1080,9 @@
                 <label for="itemsPerPage">Images per page</label>
                 <select class="form-control input-sm" id="itemsPerPage">
                     <option>4</option>
-                    <option selected>6</option>
+                    <option>6</option>
                     <option>10</option>
-                    <option>20</option>
+                    <option selected>20</option>
                     <option>50</option>
                 </select>
             </div>
@@ -1099,6 +1104,8 @@
                             Curated Only
                         </label>
                     </div>
+                    <label for="filterByHero">Hero name</label>
+                    <input type="text" class="form-control input-filter-by-hero input-sm" name="filterByHero">
                     <label for="filterByProfile">Profile ID</label>
                     <input type="text" class="form-control input-filter-by-profile input-sm" name="filterByProfile">
                 {{/unless}}

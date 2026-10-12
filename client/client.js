@@ -1516,10 +1516,28 @@ Template.photoGallery.helpers({
     }
 });
 
+// pagination-bar filters plus the hero name search; every term must match the hero's first or last name
+function adminImagesQuery() {
+    var query = Session.get("imageFilterObject");
+    var name = (Session.get("adminImagesHeroName") || "").trim();
+    if (!name) {
+        return query;
+    }
+    var nameMatches = name.split(/\s+/).map(function (term) {
+        var re = new RegExp(term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
+        return {$or: [{firstName: re}, {lastName: re}]};
+    });
+    var profileIDs = Profiles.find({$and: nameMatches}, {fields: {_id: 1}}).map(function (p) {
+        return p._id;
+    });
+    return {$and: [query, {profileID: {$in: profileIDs}}]};
+}
+
 Template.profileImages.onRendered(function () {
-    Session.set("adminImagesPerPage", 6);
+    Session.set("adminImagesPerPage", 20);
     Session.set("adminImagesCurrentIndex", 0);
     Session.set("imageFilterObject", {});
+    Session.set("adminImagesHeroName", "");
 
     // $('.fancybox').fancybox({
     //     openEffect  : "fade",
@@ -1534,9 +1552,13 @@ Template.profileImages.helpers({
     'adminOnly': function () {
         return false;
     }, 'images': function () {
-        return Images.find(Session.get("imageFilterObject"), {
+        return Images.find(adminImagesQuery(), {
+            sort: {createdAt: -1, uploadedAt: -1},
             limit: Session.get("adminImagesPerPage"), skip: Session.get("adminImagesCurrentIndex") * Session.get("adminImagesPerPage")
         }).fetch();
+    }, 'heroName': function () {
+        var profile = Profiles.findOne(this.profileID);
+        return profile ? profile.firstName + ' ' + profile.lastName : '';
     }, 'isProfilePhotoVis': function () {
         // Profiles.find({ _id: this.profileID}).observe(function(){
         //     console.log(this);
@@ -1589,11 +1611,7 @@ Template.adminImagesPagination.helpers({
         if (this.adminOnly) {
             return ((Session.get("adminImagesCurrentIndex") + 1) * Session.get("adminImagesPerPage") < ReactiveMethod.call("getAdminOnlyImagesCount")) ? "" : "disabled";
         } else {
-            if (Session.get("adminImagesFilterCurated")) {
-                return ((Session.get("adminImagesCurrentIndex") + 1) * Session.get("adminImagesPerPage") < ReactiveMethod.call("getCuratedImagesCount")) ? "" : "disabled";
-            } else {
-                return ((Session.get("adminImagesCurrentIndex") + 1) * Session.get("adminImagesPerPage") < ReactiveMethod.call("getImagesCount")) ? "" : "disabled";
-            }
+            return ((Session.get("adminImagesCurrentIndex") + 1) * Session.get("adminImagesPerPage") < Images.find(adminImagesQuery()).count()) ? "" : "disabled";
         }
     }, 'currentIndex': function () {
         return Session.get("adminImagesCurrentIndex");
@@ -1629,6 +1647,9 @@ Template.adminImagesPagination.events({
             delete obj.profileID;
         }
         Session.set("imageFilterObject", obj);
+    }, 'keyup .input-filter-by-hero': function (e) {
+        Session.set("adminImagesCurrentIndex", 0);
+        Session.set("adminImagesHeroName", $(e.target).val());
     }, 'keyup .input-filter-by-image': function (e, t) {
         var obj = Session.get("imageFilterObject");
         if ($(e.target).val()) {
@@ -1647,11 +1668,9 @@ Template.adminImagesPagination.events({
         if ($target.find('input').is(':checked')) {
             $target.removeClass('active');
             delete obj.curated;
-            Session.set("adminImagesFilterCurated", false);
         } else {
             $target.addClass('active');
             obj.curated = true;
-            Session.set("adminImagesFilterCurated", true);
         }
         Session.set("adminImagesCurrentIndex", 0);
         Session.set("imageFilterObject", obj);
