@@ -888,6 +888,14 @@ Template.addNewProfileAddlInfo.events({
         } else {
             setNewProfileProp('medals', $(e.target).val());
         }
+    },
+    // the kiosk's on-screen keyboard never fires keyup: it fires keyboardInput per key (see initKeyboard) and change on close
+    'keyboardInput .service-detail-input, change .service-detail-input': function (e) {
+        setNewProfileProp('serviceDetail', $(e.target).val());
+    }, 'keyboardInput .highest-rank-input, change .highest-rank-input': function (e) {
+        setNewProfileProp('highestRank', $(e.target).val());
+    }, 'keyboardInput .medals-textarea, change .medals-textarea': function (e) {
+        setNewProfileProp('medals', $(e.target).val());
     }
 });
 
@@ -1866,6 +1874,9 @@ initKeyboard = function (cssInputs, cssFirstInput, isConfirmationModal) {
                 'tab': 'TAB', 'bksp': 'BACK', 'shift': 'SHIFT', 'space': 'SPACE BAR'
             }, usePreview: false, position: {
                 of: cssFirstInput, my: myString, at: 'left top', at2: atString
+            }, change: function (e, keyboard, el) {
+                // the plugin's own keyboardChange event doesn't bubble to template event maps, so fire one that does
+                $(el).trigger('keyboardInput');
             }, autoAccept: true, tabNavigation: true, css: {
                 buttonDefault: 'ppdx-kybd-btn', buttonHover: 'ppdx-kybd-btn-hover'
             }
