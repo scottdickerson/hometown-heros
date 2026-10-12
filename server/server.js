@@ -5,6 +5,48 @@ var KIOSK_FROM_EMAIL = process.env.KIOSK_FROM_EMAIL || 'kiosk@fi.harrisoncountym
 var KIOSK_BCC_EMAIL = process.env.KIOSK_BCC_EMAIL || 'kiosk@ms.harrisoncountymuseum.org';
 var SITE_URL = 'https://hometownheroes.harrisoncountymuseum.org/';
 
+// visitors' photos attach one upload at a time and stories save separately, so additions to a profile
+// are collected and sent to staff as one e-mail once the profile has been quiet for this long.
+// ponytail: pending additions live in memory, so ones still waiting during a restart/deploy are never e-mailed
+var ADDITIONS_QUIET_MS = 2 * 60 * 1000;
+var pendingAdditions = {};
+
+function queueProfileAdditions(id, profile, newStories, newImageCount) {
+    var pending = pendingAdditions[id] || (pendingAdditions[id] = {stories: [], imageCount: 0});
+    pending.profile = profile;
+    pending.stories = pending.stories.concat(newStories);
+    pending.imageCount += newImageCount;
+    Meteor.clearTimeout(pending.timer);
+    pending.timer = Meteor.setTimeout(function () {
+        delete pendingAdditions[id];
+        try {
+            sendProfileAdditionsEmail(id, pending);
+        } catch (e) {
+            console.error("Failed to send profile additions e-mail for " + id + ": " + e);
+        }
+    }, ADDITIONS_QUIET_MS);
+}
+
+function sendProfileAdditionsEmail(id, pending) {
+    var heroName = pending.profile.firstName + ' ' + pending.profile.lastName;
+    var msg = "New memories were added to a Hometown Heroes profile.\n\n";
+    msg += "Hero: " + heroName + "\n";
+    msg += "New photos: " + pending.imageCount + "   New stories: " + pending.stories.length + "\n";
+    pending.stories.forEach(function (story) {
+        msg += "\nStory" + (story.sig ? " signed " + story.sig : "") + ":\n" + story.text + "\n";
+    });
+    msg += "\nView the profile: " + SITE_URL + "profile/" + id + "\n";
+    if (pending.imageCount) {
+        msg += "Review the photos (search for the hero's name): " + SITE_URL + "profileImages\n";
+    }
+    Email.send({
+        to: KIOSK_BCC_EMAIL,
+        from: KIOSK_FROM_EMAIL,
+        subject: "New memories added: " + heroName,
+        text: msg
+    });
+}
+
 function sendNewProfileEmails(id, profile) {
     var heroName = profile.firstName + ' ' + profile.lastName;
     var profileUrl = SITE_URL + 'profile/' + id;
@@ -88,6 +130,20 @@ Meteor.startup(function () {
         }
     });
     initializing = false;
+
+    // e-mail staff when stories or photos are added to an existing profile
+    Profiles.find({}, {fields: {firstName: 1, lastName: 1, stories: 1, images: 1}}).observe({
+        changed: function (newProfile, oldProfile) {
+            var oldStoryTimes = _.pluck(oldProfile.stories || [], 'createdAt');
+            var newStories = _.filter(newProfile.stories || [], function (story) {
+                return story && !_.contains(oldStoryTimes, story.createdAt);
+            });
+            var newImageCount = _.difference(_.compact(newProfile.images || []), oldProfile.images || []).length;
+            if (newStories.length || newImageCount) {
+                queueProfileAdditions(newProfile._id, newProfile, newStories, newImageCount);
+            }
+        }
+    });
 });
 
 Meteor.publish('allProfiles', function () {
