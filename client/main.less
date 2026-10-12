@@ -145,6 +145,11 @@ body {
   background-size: cover;
 }
 
+// block swipe back/forward on the kiosk touchscreen
+html:has(body.kiosk), body.kiosk {
+  overscroll-behavior-x: none;
+}
+
 @media screen and (min-width: 961px) {
   body {
     background-image: url(images/Background.jpg);
