@@ -71,12 +71,9 @@
           {{#if currentUser}}
             You need to be an admin to view this page
           {{else}}
-            Please sign in with the admin login to view this page. It opens as soon as you're signed in.
+            Please <a href="/adminLogin">sign in with the admin login</a>, then go back or click your link again to open this page.
           {{/if}}
         </p>
-        {{#unless currentUser}}
-          {{> loginButtons}}
-        {{/unless}}
       </div>
     </div>
   </div>
