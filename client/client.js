@@ -1802,7 +1802,8 @@ kioskMode = function (value) {
         // $('meta[name=viewport]').attr('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no');
 
         sheet.insertRule("::selection { background-color: transparent; }", 0);
-        $('body').addClass('kiosk');
+        // no spelling/grammar underlines on the kiosk; inputs inherit this from body
+        $('body').addClass('kiosk').attr('spellcheck', 'false');
         document.oncontextmenu = document.body.oncontextmenu = function () {
             return false;
         }
@@ -1826,7 +1827,7 @@ kioskMode = function (value) {
         if (document.styleSheets[0].cssRules[0].cssText == "::selection { background-color: transparent; }") {
             sheet.deleteRule(0);
         }
-        $('body').removeClass('kiosk');
+        $('body').removeClass('kiosk').removeAttr('spellcheck');
         document.oncontextmenu = document.body.oncontextmenu = null;
 
         // clear idle timeout if coming from kiosk mode
