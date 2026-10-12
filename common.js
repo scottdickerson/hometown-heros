@@ -11,8 +11,10 @@ Router.configure({
 });
 adminDashboardRecordImages = function () {
     var profileID = this.url.split("/")[3];
-    var images = Profiles.findOne(profileID).images;
-    Session.set("adminDashboardImages", images);
+    var profile = Profiles.findOne(profileID);
+    // keyed by profile so cleanup never compares against a different hero's images
+    // (the profile may not be loaded yet when the edit page is opened directly)
+    Session.set("adminDashboardImages", profile ? {profileID: profileID, images: profile.images || []} : null);
     this.next();
 };
 /* remove nulls and also affix profileID */
@@ -21,6 +23,10 @@ adminDashboardImagesCleanup = function () {
     // also clean up nulls in stories array
     var profileID = this.url.split("/")[3];
     var thisProfile = Profiles.findOne(profileID);
+    if (!thisProfile) {
+        // deleted, or never loaded on this page: nothing to clean up
+        return;
+    }
     var compactedImages = _.compact(thisProfile.images);
     var compactedStories = _.compact(thisProfile.stories);
     Profiles.update({_id: profileID}, {$set: {images: compactedImages, stories: compactedStories}});
@@ -30,12 +36,17 @@ adminDashboardImagesCleanup = function () {
         Images.update(compactedImages[i], {$set: {profileID: profileID}});
     }
     // also, remove orphaned images from Images collection
-    var deletedImages = _.difference(Session.get("adminDashboardImages"), compactedImages);
+    var recorded = Session.get("adminDashboardImages");
+    var deletedImages = (recorded && recorded.profileID == profileID) ? _.difference(recorded.images, compactedImages) : [];
     for (i = 0; i < deletedImages.length; i++) {
         Images.remove(deletedImages[i]);
     }
 
-    var photosToRemove = Images.find({$or: [{profileID: ""}, {profileID: {$exists: false}}]}).fetch();
+    // only day-old orphans: a visitor's photos have no profileID until they finish adding their hero
+    var photosToRemove = Images.find({
+        $or: [{profileID: ""}, {profileID: {$exists: false}}],
+        uploadedAt: {$lt: new Date(Date.now() - 24 * 60 * 60 * 1000)}
+    }).fetch();
     for (var i = 0; i < photosToRemove.length; ++i) {
         Images.remove(photosToRemove[i]._id);
     }
