@@ -1,7 +1,45 @@
 
 // set in the NodeChef environment variables; restart the app to pick up changes
 var KIOSK_FROM_EMAIL = process.env.KIOSK_FROM_EMAIL || 'kiosk@fi.harrisoncountymuseum.org';
+// staff inbox that gets an e-mail for every new profile (env var keeps its old BCC name)
 var KIOSK_BCC_EMAIL = process.env.KIOSK_BCC_EMAIL || 'kiosk@ms.harrisoncountymuseum.org';
+var SITE_URL = 'https://hometownheroes.harrisoncountymuseum.org/';
+
+function sendNewProfileEmails(id, profile) {
+    var heroName = profile.firstName + ' ' + profile.lastName;
+    var profileUrl = SITE_URL + 'profile/' + id;
+
+    var staffMsg = "A new profile was added to Hometown Heroes.\n\n";
+    staffMsg += "Hero: " + heroName + "\n";
+    staffMsg += "Community: " + (profile.community || "(none given)") + "\n";
+    staffMsg += "Submitted by: " + (profile.contactName || "(no name given)") +
+        (profile.contactEmail ? " (" + profile.contactEmail + ")" : ", no e-mail given") + "\n";
+    staffMsg += "Photos: " + (profile.images || []).length + "   Stories: " + (profile.stories || []).length + "\n\n";
+    staffMsg += "View the profile: " + profileUrl + "\n";
+    staffMsg += "Review it in the admin: " + SITE_URL + "admin/Profiles/" + id + "/edit\n";
+    Email.send({
+        to: KIOSK_BCC_EMAIL,
+        from: KIOSK_FROM_EMAIL,
+        subject: "New Hometown Heroes profile: " + heroName,
+        text: staffMsg
+    });
+
+    if (profile.contactEmail) {
+        var msg = "Greetings, " + profile.contactName + ",\n\n";
+        msg += "Thanks for visiting our kiosk at the Harrison County Historical Museum.  ";
+        msg += "As promised, here's the link to the entry you created for " + heroName + ".\n\n";
+        msg += profileUrl + "\n\n";
+        msg += "You can visit the profile page at any time to add images and other memories to the profile.\n\n";
+        msg += "Thanks from the HCHM staff!\n\n";
+        msg += "(This email is automatically generated. Please do not reply to it.)";
+        Email.send({
+            to: profile.contactEmail,
+            from: KIOSK_FROM_EMAIL,
+            subject: "Hometown Heroes profile for " + heroName,
+            text: msg
+        });
+    }
+}
 
 Meteor.startup(function () {
     // following environment variable set up directly on Modulus/Xervo account
@@ -17,30 +55,26 @@ Meteor.startup(function () {
 
     Accounts.emailTemplates.from = "HCHM Kiosk <" + KIOSK_FROM_EMAIL + ">";
 
-});
-
-Meteor.methods({
-    sendEmail: function (to, subject, text) {
-        check([to, subject, text], [String]);
-
-        // Let other method calls from the same client start running,
-        // without waiting for the email sending to complete.
-        this.unblock();
-
-        Email.send({
-            to: to,
-            from: KIOSK_FROM_EMAIL,
-            subject: subject,
-            text: text,
-            bcc: KIOSK_BCC_EMAIL
-        });
-    },
-    getImagesCount: function () {
-        return Images.find().count();
-    },
-    getCuratedImagesCount: function () {
-        return Images.find({curated: true}).count();
-    }
+    // e-mail staff (and the visitor, if they gave an address) whenever a profile is created.
+    // ponytail: every server instance sends its own copy; switch to a server method if NodeChef is scaled past one container
+    var initializing = true;
+    Profiles.find({}, {
+        fields: {firstName: 1, lastName: 1, community: 1, contactName: 1, contactEmail: 1, images: 1, stories: 1}
+    }).observeChanges({
+        added: function (id, profile) {
+            if (initializing) {
+                return;
+            }
+            Meteor.defer(function () {
+                try {
+                    sendNewProfileEmails(id, profile);
+                } catch (e) {
+                    console.error("Failed to send new profile e-mails for " + id + ": " + e);
+                }
+            });
+        }
+    });
+    initializing = false;
 });
 
 Meteor.publish('allProfiles', function () {

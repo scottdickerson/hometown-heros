@@ -638,21 +638,7 @@ Template.addNewProfile.events({
             }
         });
         Session.set('newProfileID', profileID);
-
-        var cEmail = Session.get('newProfileData').contactEmail;
-        var cName = Session.get('newProfileData').contactName;
-        // send email?
-        if (cEmail) {
-            var msg = "Greetings, " + cName + ",\n\n";
-            msg += "Thanks for visiting our kiosk at the Harrison County Historical Museum.  ";
-            msg += "As promised, here's the link to the entry you created for " + Session.get('newProfileData').firstName + " " + Session.get('newProfileData').lastName + ".\n\n";
-            msg += "http://hometownheroes.harrisoncountymuseum.org/profile/" + profileID + "\n\n";
-            msg += "You can visit the profile page at any time to add images and other memories to the profile.\n\n";
-            msg += "Thanks from the HCHM staff!\n\n";
-            msg += "(This email is automatically generated. Please do not reply to it.)";
-
-            Meteor.call('sendEmail', cEmail, 'Automated email from HCHM Kiosk', msg);
-        }
+        // the server e-mails staff and the visitor when it sees the new profile (server/server.js)
 
         // insert any "truthy" story added
         //if (Session.get('newProfileStoryText')) {
