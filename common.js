@@ -118,7 +118,8 @@ Router.route('/profileImages', {
         if (Meteor.loggingIn()) {
             this.render('loading');
         } else if (!Roles.userIsInRole(Meteor.userId(), ['admin'])) {
-            this.redirect('/adminLogin');
+            // show the sign-in here; this hook reruns on login, so the page then opens in place
+            this.render('adminLogin');
         } else {
             this.next();
         }

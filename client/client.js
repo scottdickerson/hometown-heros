@@ -1575,7 +1575,8 @@ Template.profileImages.helpers({
         //     console.log(this);
         //     return "visible";
         // });
-        return (Profiles.findOne(this.profileID).profilePhotoID == this._id) ? "visible" : "hidden";
+        var profile = Profiles.findOne(this.profileID);
+        return (profile && profile.profilePhotoID == this._id) ? "visible" : "hidden";
     }, 'isChecked': function () {
         return (this.curated) ? "checked" : "";
     }
