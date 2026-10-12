@@ -64,11 +64,9 @@ $.validator.setDefaults({
 Template.registerHelper('isKiosk', function () {
     return Session.get("isKiosk");
 });
-Template.registerHelper('screensaverActive', function () {
-    return Session.get("isKiosk") && Session.get("screensaver_active");
-});
 Template.registerHelper('isHomePage', function () {
-    return Router.current().route.getName() == "home";
+    var routeName = Router.current().route.getName();
+    return routeName == "home" || routeName == "kioskMode";
 });
 Template.registerHelper('conflict', function () {
     // Conflicts is not a Meteor collection, it is an SEnum
@@ -87,56 +85,20 @@ Template.registerHelper('tapclick', function () {
     return (Session.get("isKiosk")) ? "tap" : "click";
 })
 
-// SCREENSAVER
+// KIOSK IDLE: return to the home screen after idletime seconds without a touch
 var mousetimeout = 0;
-Session.set("screensaver_active", false);
-var idletime = 60; // # of seconds idle before screensaver kicks in
-var screensaver_timeline;
+var idletime = 60;
 
-
-function show_screensaver() {
+function returnHomeWhenIdle() {
     var routeName = Router.current().route.getName();
-    if (routeName.indexOf('admin') == -1) {
-        if (Router.current().route.getName() != "home") {
-            // close keyboard if present
-            if ($('.ui-keyboard').length > 0) {
-                var keyboard = $('.ui-keyboard').getkeyboard();
-                keyboard.close();
-            }
-            Router.go('home');
+    if (routeName.indexOf('admin') == -1 && routeName != "home") {
+        // close keyboard if present
+        if ($('.ui-keyboard').length > 0) {
+            var keyboard = $('.ui-keyboard').getkeyboard();
+            keyboard.close();
         }
-        Session.set("screensaver_active", true);
+        Router.go('home');
     }
-}
-
-function stop_screensaver() {
-    // screensaver_timeline.stop();
-    $('#screensaver').fadeOut(400, function () {
-        stopScreensaverVideo();
-        Session.set("screensaver_active", false);
-    });
-}
-
-
-// END SCREENSAVER
-
-Template.screensaver.onRendered(function () {
-
-    // start
-    $('#screensaver').hide().fadeIn(1000);
-    setTimeout(startScreensaverVideo, 1000);
-    // screensaver_timeline.play();
-});
-
-function startScreensaverVideo() {
-    var vid = $('.screensaver-video').get(0);
-    vid.play();
-}
-
-function stopScreensaverVideo() {
-    var vid = $('.screensaver-video').get(0);
-    vid.pause();
-    vid.currentTime = 0;
 }
 
 Template.nav.onCreated(function () {
@@ -147,6 +109,18 @@ Template.nav.onRendered(function () {
         // event.preventDefault();
     });
 });
+
+function playHeaderVideo() {
+    var vid = $('.ppdx-nav video').get(0);
+    if (vid && document.visibilityState == 'visible') {
+        // the muted attribute isn't applied to template-inserted videos, and Chrome only autoplays muted ones
+        vid.muted = true;
+        vid.play().catch(function () {});
+    }
+}
+Template.headerVideo.onRendered(playHeaderVideo);
+// Chrome pauses muted video while the page is hidden (e.g. the display sleeps) and doesn't always resume it
+document.addEventListener('visibilitychange', playHeaderVideo);
 
 Template.nav.events({
     'click .back-btn': function (e) {
@@ -1776,33 +1750,16 @@ kioskMode = function (value) {
 
         // using vanilla JS so that I can use capture phase
         document.addEventListener("touchstart", function (e) {
-            // console.log("clearing timer");
             clearTimeout(mousetimeout);
-
-            if (Session.get("screensaver_active")) {
-                stop_screensaver();
-            }
-
-            mousetimeout = setTimeout(function () {
-                show_screensaver();
-            }, 1000 * idletime);
+            mousetimeout = setTimeout(returnHomeWhenIdle, 1000 * idletime);
         }, true);
         document.addEventListener("mousedown", function (e) {
             clearTimeout(mousetimeout);
-
-            if (Session.get("screensaver_active")) {
-                stop_screensaver();
-            }
-
-            mousetimeout = setTimeout(function () {
-                show_screensaver();
-            }, 1000 * idletime);
+            mousetimeout = setTimeout(returnHomeWhenIdle, 1000 * idletime);
         }, true);
 
-        // start screensaver_timer
-        mousetimeout = setTimeout(function () {
-            show_screensaver();
-        }, 1000 * idletime);
+        // start idle timer
+        mousetimeout = setTimeout(returnHomeWhenIdle, 1000 * idletime);
     } else {
         // reenable pinch zoom
         // $('meta[name=viewport]').attr('content', 'width=device-width, initial-scale=1');
@@ -1813,7 +1770,7 @@ kioskMode = function (value) {
         $('body').removeClass('kiosk');
         document.oncontextmenu = document.body.oncontextmenu = null;
 
-        // clear screensaver timeout if coming from kiosk mode
+        // clear idle timeout if coming from kiosk mode
         clearTimeout(mousetimeout);
     }
 };

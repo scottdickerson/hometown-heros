@@ -1,7 +1,4 @@
 <template name="main">
-    {{#if screensaverActive}}
-        {{> screensaver }}
-    {{/if}}
     <div class="flex-container-vert main-layout">
         <div class="ppdx-nav">
             {{> nav}}
@@ -33,25 +30,26 @@
                 <div id="preload-button-home"></div>
             {{/unless}}
         </div>
-        <picture>
-            <source srcset="/images/Back-HeaderBar.half.jpg" sizes="100%" media="(max-width: 960px)">
-            <source srcset="/images/Back-HeaderBar.jpg" sizes="100%">
-            <img src="/images/Back-HeaderBar.jpg" class="ppdx-header-img">
-        </picture>
+        {{#if isHomePage}}
+            {{> headerVideo}}
+        {{else}}
+            <picture>
+                <source srcset="/images/Back-HeaderBar.half.jpg" sizes="100%" media="(max-width: 960px)">
+                <source srcset="/images/Back-HeaderBar.jpg" sizes="100%">
+                <img src="/images/Back-HeaderBar.jpg" class="ppdx-header-img">
+            </picture>
+        {{/if}}
     </nav>
     <div class="black-gradient"></div>
 
 </template>
 
-
-<template name="screensaver">
-    <div id="screensaver">
-        <video width="1920" height="205" class="screensaver-video" loop disableremoteplayback>
-            <source src="/videos/papdexHeaderAnimation_004_4M.webm" type="video/webm">
-        </video>
-        <div class="screensaver-video-gradient"></div>
-    </div>
+<template name="headerVideo">
+    <video class="ppdx-header-img" poster="/images/Back-HeaderBar.jpg" loop muted playsinline disableremoteplayback>
+        <source src="/videos/papdexHeaderAnimation_004_4M.webm" type="video/webm">
+    </video>
 </template>
+
 
 <template name="home">
     <h2 class="home centered">The families of Harrison County have a long tradition of service.</h2>
