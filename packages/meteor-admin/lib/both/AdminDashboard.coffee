@@ -20,6 +20,8 @@ AdminDashboard =
 			'Users'
 		else if collection? and typeof AdminConfig.collections[collection]?.label == 'string'
 			AdminConfig.collections[collection].label
+		# use the name itself: reading the Session here from a route hook made the edit route rerun endlessly
+		else if collection? then collection
 		else Session.get 'admin_collection_name'
 
 	addSidebarItem: (title, url, options) ->

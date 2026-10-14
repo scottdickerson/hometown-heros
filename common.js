@@ -102,7 +102,16 @@ Router.route('/exitKioskMode', {
 });
 
 Router.route('/adminLogin', {
-    layoutTemplate: 'edAdmin'
+    layoutTemplate: 'edAdmin',
+    onBeforeAction: function () {
+        // came from an admin link: once signed in, reload that page (a full load avoids the admin edit route's reactive loop)
+        var redirect = this.params.query.redirect;
+        if (redirect && /^\/(?!\/)/.test(redirect) && Roles.userIsInRole(Meteor.userId(), ['admin'])) {
+            window.location.replace(redirect);
+        } else {
+            this.next();
+        }
+    }
 });
 Router.route('/searchByName', {
     name: 'searchByName',

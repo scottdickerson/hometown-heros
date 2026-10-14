@@ -111,3 +111,7 @@ UI.registerHelper 'adminUserEmail', (user) ->
 		user.services.facebook.email
 	else if user && user.services && user.services.google && user.services.google.email
 		user.services.google.email
+
+Template.NotAdmin.helpers
+	adminLoginUrl: ->
+		'/adminLogin?redirect=' + encodeURIComponent(location.pathname + location.search)

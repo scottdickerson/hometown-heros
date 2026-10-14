@@ -71,7 +71,7 @@
           {{#if currentUser}}
             You need to be an admin to view this page
           {{else}}
-            Please <a href="/adminLogin">sign in with the admin login</a>, then go back or click your link again to open this page.
+            Please <a href="{{adminLoginUrl}}" target="_self">sign in with the admin login</a>. This page opens again once you're signed in.
           {{/if}}
         </p>
       </div>
