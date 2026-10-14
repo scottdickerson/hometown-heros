@@ -1266,10 +1266,16 @@ Template.profile.helpers({
         var photos = Images.find({_id: {$in: this.images}}).fetch();
         var stories = this.stories;
         var memories = photos.concat(stories);
+        var profilePhotoID = this.profilePhotoID;
+        // profile photo first, then oldest to newest so new memories add to the bottom
         memories = memories.sort(function (a, b) {
-            if (a.createdAt > b.createdAt) {
+            if (profilePhotoID && a._id == profilePhotoID) {
                 return -1;
+            } else if (profilePhotoID && b._id == profilePhotoID) {
+                return 1;
             } else if (a.createdAt < b.createdAt) {
+                return -1;
+            } else if (a.createdAt > b.createdAt) {
                 return 1;
             } else {
                 return 0;
